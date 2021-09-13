@@ -1,9 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <fstream>
-
-using namespace std;
+#include "AlumnoP1.h"
 
 void stringtochar(char arr[], string palabra, int n) {
     for (int i=0; i<n; i++) {
@@ -14,37 +9,12 @@ void stringtochar(char arr[], string palabra, int n) {
     }
 }
 
-struct AlumnoP1{
-    char codigo[5];
-    char nombre[11];
-    char apellidos[20];
-    char carrera[15];
-
-    friend ostream& operator<<(ostream& os, const AlumnoP1& a1) {
-        os << "Codigo: ";
-        for (int i=0; i<5; i++)
-            os << a1.codigo[i];
-        os << endl << "Nombre: ";
-        for (int i=0; i<11; i++)
-            os << a1.nombre[i];
-        os << endl << "Apellidos: ";
-        for (int i=0; i<20; i++)
-            os << a1.apellidos[i];
-        os << endl << "Carrera: ";
-        for (int i=0; i<15; i++)
-            os << a1.carrera[i];
-        os << endl;
-        return os;
-    }
-};
-
 class FixedRecordP1{
     string nombre;
 public:
     explicit FixedRecordP1(string _nombre) : nombre(_nombre){}
     
     vector<AlumnoP1> load() {
-        // Read from the text file
         fstream file;
         file.open(nombre + ".txt");
 
@@ -52,10 +22,7 @@ public:
 
         vector<AlumnoP1> v;
 
-        // Use a while loop together with the getline() function to read the file line by line        
         while (getline (file, texto)) {
-        // Output the text from the file
-            // cout << texto << endl;
             AlumnoP1 alumno{};
             for (int i=0; i<5; i++)
                 alumno.codigo[i] = texto[i];
@@ -99,20 +66,16 @@ public:
             palabra += i;
         string career = palabra;
 
-        // cout << "debug" << endl;
         string cadena = code + name + last_name + career + "\n";
-        // cout << cadena << endl;
-        // Create and open a text file
         ofstream file;
         file.open(nombre + ".txt", ios::app);
-        // Write to the file
         file << cadena;
-        // Close the file
         file.close();
     }
 
     AlumnoP1 readRecord(int pos) {
-        return load()[pos];
+        vector<AlumnoP1> temp = load();
+        return temp[pos];
     }
 
     void Test() {

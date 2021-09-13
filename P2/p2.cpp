@@ -2,18 +2,9 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include "AlumnoP2.h"
 
 using namespace std;
-
-struct AlumnoP2{
-    char codigo[5];
-    char nombre[11];
-    char apellidos[20];
-    char carrera[15];
-
-    int ciclo;
-    float mensualidad;
-};
 
 class FixedRecordP2{
     string name;
@@ -34,15 +25,12 @@ public:
     vector<AlumnoP2> load() {
         ifstream file;
         file.open(name + ".dat", ios::binary);
-        // char dato = file.get();
         vector<AlumnoP2> v;
         int i = 0;
         ifstream inFile;
             inFile.open(name + ".dat", ios::binary);
         int c = n;
         while (n--) {
-            // Output the text from the file
-            // cout << texto << endl;
             AlumnoP2 record;
             inFile.seekg(i++ * sizeof(record), ios::beg);
             inFile.read((char*) &record, sizeof(record));
@@ -72,7 +60,6 @@ public:
     
     friend ostream &operator<< (ostream & stream, const AlumnoP2 record) {
         stream.write((char*) &record, sizeof(record));
-        // stream << flush;
         return stream;
     }
     

@@ -2,15 +2,9 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include "Matricula.h"
 
 using namespace std;
-
-struct Matricula{
-    string codigo;
-    int ciclo;
-    float mensualidad;
-    string observaciones;
-};
 
 class FixedRecordP4{
     string name;
@@ -48,7 +42,6 @@ public:
 
         vector<Matricula> v;
 
-        // Use a while loop together with the getline() function to read the file line by line
         bool key = true;
         int j = n;
         while (n--) {
@@ -91,10 +84,6 @@ public:
         m2.codigo = "abcde";
         m2.mensualidad = 20;
         m2.observaciones = "fugian";
-
-        // add(m1);
-        // add(m2);
-        // cout << endl << sizeof("a");
 
         Matricula m = readRecordP4(1);
         cout << "ciclo: " << m.ciclo;
