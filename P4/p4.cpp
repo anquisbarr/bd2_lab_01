@@ -1,91 +1,133 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <fstream>
 #include "Matricula.h"
 
-using namespace std;
-
-class FixedRecordP4{
+class VariableRecordP4{
     string name;
-    int n = 0;
-    vector<string> split(string line, string separator) {
-        vector<string> words;
-        string word;
-        for (auto i=0; i<line.size(); i++) {
-            string comp;
-            int j=i;
-            if (j < line.size()-1) {
-                for (auto x : separator) {
-                    comp += line[j++];
-                }
-            }
-            
-            
-            if (comp != separator)
-                word += line[i];
-            else {
-                words.push_back(word);
-                word = "";
-            }
-        }
-        words.push_back(word);
-        return words;
-    }
+    string meta_name;
 public:
-    explicit FixedRecordP4(string _nombre) : name(_nombre){}
+    explicit VariableRecordP4(string _nombre, string _meta_nombre) : name(_nombre), meta_name(_meta_nombre){}
 
     vector<Matricula> load() {
-        fstream file;
-        file.open(name + ".txt");
-        string texto;
-
         vector<Matricula> v;
-
-        bool key = true;
-        int j = n;
-        while (n--) {
-            if (key) {
-                key = false;
-                continue;
-            }
+        ifstream inFile;
+        inFile.open(name + ".dat", ios::binary);
+        Matricula temp;
+        while (read(inFile, temp))
+        {
+            v.push_back(temp);
         }
+        inFile.close();
         return v;
+    }
+
+    bool read(ifstream &s, Matricula &reg)
+    {
+        s.read((char *) &reg.ciclo, sizeof(reg.ciclo));
+        if (s.fail()) return false;
+        s.read((char *) &reg.mensualidad, sizeof(reg.mensualidad));
+        reg.codigo = readStr(s);
+        reg.observaciones = readStr(s);
+        return true;
+    }
+
+    string readStr(ifstream &strm) {
+        int len;
+        strm.read((char *) &len, sizeof(len));
+        char *buffer = new char[len + 1];
+        strm.read(buffer, len);
+        buffer[len] = '\0';
+        string result = buffer;
+        delete buffer;
+        return result;
     }
 
     void add(Matricula record) {
         ofstream inFile;
-        string cadena = to_string(sizeof(record.codigo)) + ":" + record.codigo +
-                        to_string(sizeof(record.ciclo)) + ":" + to_string(record.ciclo) +
-                        to_string(sizeof(record.mensualidad)) + ":" + to_string(record.mensualidad) +
-                        to_string(sizeof(record.observaciones)) + ":" + record.observaciones;
-        cout << cadena << endl;
-        inFile.open(name + ".dat", ios::app | ios::binary);
-        inFile.write((char*) &cadena, sizeof(cadena));
+        inFile.open(name + ".dat", ios::binary | ios::app);
+        long begin = fileSize();
+        write(inFile, record);
         inFile.close();
-        n++;
+        inFile.open(meta_name + ".dat", ios::binary | ios::app);
+        inFile.write((char*) &begin, sizeof(begin));
+        inFile.close();
+    }
+
+    void write(ofstream &stream, Matricula &r) {
+        stream.write((char *) &r.ciclo, sizeof(r.ciclo));
+        stream.write((char *) &r.mensualidad, sizeof(r.mensualidad));
+        writeString(stream, r.codigo);
+        writeString(stream, r.observaciones);
+    }
+
+    void writeString(ofstream &stream, string str) {
+        int len = str.size();
+        stream.write((char *) &len, sizeof(len));
+        stream.write(str.c_str(), len);
+    }
+
+    streampos fileSize(){
+        ifstream inFile(name + ".dat", ios::binary);
+        streampos size = 0;
+        size = inFile.tellg();
+        inFile.seekg(0, std::ios::end);
+        size = inFile.tellg() - size;
+        inFile.close();
+        return size;
     }
 
     Matricula readRecordP4(int pos) {
+        ifstream inFile;
         Matricula record;
+        long metadataPos;
+
+        inFile.open(meta_name + ".dat", ios::binary);
+        inFile.seekg(pos*sizeof(metadataPos));
+        inFile.read((char *) &metadataPos, sizeof(metadataPos));
+        inFile.close();
+
+        inFile.open(name + ".dat", ios::binary);
+        inFile.seekg(metadataPos);
+        read(inFile, record);
+        inFile.close();
         
         return record;
     }
 
     void Test() {
-        Matricula m1{};
-        m1.ciclo = 1;
-        m1.codigo = "abc";
-        m1.mensualidad = 19.6;
-        m1.observaciones = "atwq";
+        auto v = load();
+        for (auto x : v)
+        {
+            x.printData();
+        }
+        cout << "Añadiendo registros al archivo:" << endl;
+        Matricula M{};
+        M.codigo = "0012";
+        M.ciclo = 7;
+        M.mensualidad = 3205.23;
+        M.observaciones = "prueba";
+        add(M);
+        M.printData();
+        cout << endl;
 
-        Matricula m2{};
-        m2.ciclo = 3;
-        m2.codigo = "abcde";
-        m2.mensualidad = 20;
-        m2.observaciones = "fugian";
+        Matricula O{};
+        O.codigo = "0002";
+        O.ciclo = 3;
+        O.mensualidad = 1480.70;
+        O.observaciones = "qwerty";
+        add(O);
+        O.printData();
+        cout << endl;
 
-        Matricula m = readRecordP4(1);
-        cout << "ciclo: " << m.ciclo;
+        Matricula P{};
+        P.codigo = "0003";
+        P.ciclo = 7;
+        P.mensualidad = 2700.15;
+        P.observaciones = "123456789";
+        add(P);
+        P.printData();
+        cout << endl;
+        
+	    v = load();
+        auto a = readRecordP4(v.size()-1);
+        a.printData();
     }
 };

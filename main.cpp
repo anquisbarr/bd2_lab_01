@@ -22,5 +22,8 @@ int main() {
     VariableRecord P3("datos2");
     P3.Test();
 
+    cout << "-------------------------P4-------------------------\n";
+    VariableRecordP4 P4("fichero2", "metadata");
+    P4.Test();
     return 0;
 }
