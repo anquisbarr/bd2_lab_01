@@ -83,7 +83,10 @@ public:
     }
 
     bool mydelete(int pos) {
-        load()[pos];
+        /*
+        vector<AlumnoP2> show = load();
+        show[pos];
+        */
         return true;
     }
 
